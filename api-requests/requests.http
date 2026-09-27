@@ -1,0 +1,54 @@
+### POST request to create a SENDER account
+POST http://localhost:8080/api/v1/accounts
+Content-Type: application/json
+
+{
+  "accountOwnerName": "Sender account",
+  "email": "sender.account1@testmail.com",
+  "phone": "0997878787",
+  "accountType": "SAVINGS",
+  "initialDeposit": 10000
+}
+
+> {% client.global.set("senderAccountNumber", response.body.accountNumber) %}
+
+
+### POST request to create a RECEIVER account
+POST http://localhost:8080/api/v1/accounts
+Content-Type: application/json
+
+{
+  "accountOwnerName": "Receiver account",
+  "email": "receiver.account1@testmail.com",
+  "phone": "0997878788",
+  "accountType": "SAVINGS",
+  "initialDeposit": 6000
+}
+
+> {% client.global.set("receiverAccountNumber", response.body.accountNumber) %}
+
+
+### GET request to the balance by account number
+GET http://localhost:8080/api/v1/accounts/{{senderAccountNumber}}/balance
+
+
+### POST request to transfer money from SENDER to RECEIVER
+POST http://localhost:8080/api/v1/transactions/transfer
+Content-Type: application/json
+
+{
+  "senderAccountNumber": "{{senderAccountNumber}}",
+  "receiverAccountNumber": "{{receiverAccountNumber}}",
+  "description": "Test Transfer from SENDER to RECEIVER",
+  "amount": 555
+}
+
+> {% client.global.set("transactionId", response.body.id) %}
+
+
+### POST request to verify otp for the transfer (copy otp from notification-service logs)
+POST http://localhost:8080/api/v1/transactions/{{transactionId}}/verify-otp?otp=108867
+
+
+### GET request to fetch a transaction by transactionId
+GET http://localhost:8080/api/v1/transactions/{{transactionId}}
